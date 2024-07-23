@@ -160,6 +160,8 @@ class AudioManager : MonoBehaviour
         {
             data[2 * i] = DataSamples[i] * gain;
             data[2 * i + 1] = DataSamples[i] * gain;
+
+            Debug.Log(Mathf.Round(Mathf.Abs(DataSamples[i] * gain * 100)));
         }
     }
 

@@ -25,7 +25,7 @@ public class LookAtController : MonoBehaviour
 
     private void OnAnimatorIK(int layerIndex)
     {
-        this.animator.SetLookAtWeight(1.0f, 0.8f, 1.0f, 0.0f, 0f);
+        this.animator.SetLookAtWeight(1.0f, 0.8f, 1.0f, 1.0f, 0f);
         this.animator.SetLookAtPosition(this.targetPos);
     }
 }

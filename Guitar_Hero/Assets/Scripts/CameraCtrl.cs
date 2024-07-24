@@ -11,6 +11,8 @@ public class CameraCtrl : MonoBehaviour
     public GameObject run_camPos;
     public GameObject frt_camPos;
 
+    public GameObject unityChan;
+
     private Vector3 defPos;
     private Quaternion defRot;
 
@@ -81,7 +83,7 @@ public class CameraCtrl : MonoBehaviour
             case GameManager.GameMode.runner:
                 if (GameManager.instance.startGame)
                 {
-                    if (Input.GetKey(KeyCode.Q))
+                    if (unityChan.transform.position.z < -500 && unityChan.transform.position.z > -555)
                     {
                         cm = CameraMode.frt;
                     }

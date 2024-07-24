@@ -50,6 +50,8 @@ namespace UnityChan
 		static int jumpState = Animator.StringToHash ("Base Layer.Jump");
 		static int restState = Animator.StringToHash ("Base Layer.Rest");
 
+		private bool jumping;
+
 		// 初期化
 		void Start ()
 		{
@@ -72,60 +74,89 @@ namespace UnityChan
 			float h = Input.GetAxis ("Horizontal");             // 入力デバイスの水平軸をhで定義
 			float v;											// 入力デバイスの垂直軸をvで定義
 
-			if (GameManager.instance.gameMode == GameManager.GameMode.runner)
-			{
-				v = Mathf.Round(GameManager.instance.stroke);
-			}
+			if (!GameManager.instance.freezeUnityChan)
+            {
+                if (GameManager.instance.gameMode == GameManager.GameMode.runner)
+                {
+                    if (GameManager.instance.startGame)
+                    {
+                        v = Mathf.Round(GameManager.instance.stroke);
+                        //v = 5;
+                    }
+                    else
+                    {
+                        v = 0;
+                    }
+                }
+                else
+                {
+                    v = Input.GetAxis("Vertical");
+                }
+
+                anim.SetFloat("Speed", v);                          // Animator側で設定している"Speed"パラメタにvを渡す
+                anim.SetFloat("Direction", h);                      // Animator側で設定している"Direction"パラメタにhを渡す
+                anim.speed = animSpeed;                             // Animatorのモーション再生速度に animSpeedを設定する
+                currentBaseState = anim.GetCurrentAnimatorStateInfo(0); // 参照用のステート変数にBase Layer (0)の現在のステートを設定する
+                rb.useGravity = true;//ジャンプ中に重力を切るので、それ以外は重力の影響を受けるようにする
+
+                // 以下、キャラクターの移動処理
+                velocity = new Vector3(0, 0, v);        // 上下のキー入力からZ軸方向の移動量を取得
+                                                        // キャラクターのローカル空間での方向に変換
+                velocity = transform.TransformDirection(velocity);
+                //以下のvの閾値は、Mecanim側のトランジションと一緒に調整する
+                if (v > 0.1)
+                {
+                    velocity *= forwardSpeed;       // 移動速度を掛ける
+                }
+                else if (v < -0.1)
+                {
+                    velocity *= backwardSpeed;  // 移動速度を掛ける
+                }
+
+                if (GameManager.instance.gameMode == GameManager.GameMode.runner)
+				{
+      //              if (!jumping && GameManager.instance.stroke > GameManager.instance.threshold)
+      //              {
+      //                  rb.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
+      //                  anim.SetBool("Jump", true);     // Animatorにジャンプに切り替えるフラグを送る
+						//jumping = true;
+      //              }
+                }
+				else
+				{
+                    if (Input.GetKeyDown(KeyCode.Space) && GameManager.instance.startGame)
+                    {
+
+						//アニメーションのステートがLocomotionの最中のみジャンプできる
+						//if (currentBaseState.fullPathHash == locoState)
+						//{
+						//	//ステート遷移中でなかったらジャンプできる
+						//	if (!anim.IsInTransition(0))
+						//	{
+						//		rb.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
+						//		anim.SetBool("Jump", true);     // Animatorにジャンプに切り替えるフラグを送る
+						//	}
+						//            }
+
+						rb.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
+						anim.SetBool("Jump", true);     // Animatorにジャンプに切り替えるフラグを送る
+					}
+                }
+
+                if (GameManager.instance.startGame)
+                {
+                    // 上下のキー入力でキャラクターを移動させる
+                    transform.localPosition += velocity * Time.fixedDeltaTime;
+
+                    // 左右のキー入力でキャラクタをY軸で旋回させる
+                    transform.Rotate(0, h * rotateSpeed, 0);
+                }
+            }
 			else
 			{
-                v = Input.GetAxis("Vertical");
+                v = 0;
             }
-
-			anim.SetFloat ("Speed", v);							// Animator側で設定している"Speed"パラメタにvを渡す
-			anim.SetFloat ("Direction", h); 						// Animator側で設定している"Direction"パラメタにhを渡す
-			anim.speed = animSpeed;								// Animatorのモーション再生速度に animSpeedを設定する
-			currentBaseState = anim.GetCurrentAnimatorStateInfo (0);	// 参照用のステート変数にBase Layer (0)の現在のステートを設定する
-			rb.useGravity = true;//ジャンプ中に重力を切るので、それ以外は重力の影響を受けるようにする
-
-		
-		
-			// 以下、キャラクターの移動処理
-			velocity = new Vector3 (0, 0, v);		// 上下のキー入力からZ軸方向の移動量を取得
-			// キャラクターのローカル空間での方向に変換
-			velocity = transform.TransformDirection (velocity);
-			//以下のvの閾値は、Mecanim側のトランジションと一緒に調整する
-			if (v > 0.1) {
-				velocity *= forwardSpeed;		// 移動速度を掛ける
-			} else if (v < -0.1) {
-				velocity *= backwardSpeed;	// 移動速度を掛ける
-			}
-		
-			if (Input.GetKeyDown(KeyCode.Space) && GameManager.instance.startGame)
-			{
-
-				//アニメーションのステートがLocomotionの最中のみジャンプできる
-				//if (currentBaseState.fullPathHash == locoState)
-				//{
-				//	//ステート遷移中でなかったらジャンプできる
-				//	if (!anim.IsInTransition(0))
-				//	{
-				//		rb.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
-				//		anim.SetBool("Jump", true);     // Animatorにジャンプに切り替えるフラグを送る
-				//	}
-    //            }
-                rb.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
-                anim.SetBool("Jump", true);     // Animatorにジャンプに切り替えるフラグを送る
-                }
-		
-			if (GameManager.instance.startGame)
-            {
-                // 上下のキー入力でキャラクターを移動させる
-                transform.localPosition += velocity * Time.fixedDeltaTime;
-
-				// 左右のキー入力でキャラクタをY軸で旋回させる
-				transform.Rotate(0, h * rotateSpeed, 0);
-            }
-	
+			
 
 			// 以下、Animatorの各ステート中での処理
 			// Locomotion中
@@ -151,7 +182,8 @@ namespace UnityChan
 						float jumpHeight = anim.GetFloat ("JumpHeight");
 						float gravityControl = anim.GetFloat ("GravityControl"); 
 						if (gravityControl > 0)
-							rb.useGravity = false;	//ジャンプ中の重力の影響を切る
+							rb.useGravity = false;  //ジャンプ中の重力の影響を切る
+							
 										
 						// レイキャストをキャラクターのセンターから落とす
 						Ray ray = new Ray (transform.position + Vector3.up, -Vector3.up);
@@ -168,7 +200,8 @@ namespace UnityChan
 							}
 						}
 					}
-					// Jump bool値をリセットする（ループしないようにする）				
+
+					// Jump bool値をリセットする（ループしないようにする）
 					anim.SetBool ("Jump", false);
 				//}
 			}
@@ -221,5 +254,14 @@ namespace UnityChan
 			col.height = orgColHight;
 			col.center = orgVectColCenter;
 		}
-	}
+
+        void OnCollisionEnter(Collision collision)
+		{
+			if (collision.gameObject.tag == "Ground")
+			{
+				jumping = false;
+			}
+		}
+
+    }
 }

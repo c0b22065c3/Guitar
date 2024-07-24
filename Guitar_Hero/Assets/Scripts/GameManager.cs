@@ -7,6 +7,8 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance = null;
 
+    [Header("ストローク時のフィードバック")] public float stroke;
+
     private string sceneName; // 現在のシーンの名前を格納する用
     private bool startGame = false;
 
@@ -31,12 +33,17 @@ public class GameManager : MonoBehaviour
 
         //シーンが切り替わった時に呼ばれるメソッドを登録
         SceneManager.activeSceneChanged += OnActiveSceneChanged;
+
+        if (sceneName != "Title")
+        {
+            startGame = true;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && !startGame)
+        if (stroke > 5 && sceneName == "Title")
         {
             SceneManager.LoadScene("Battle");
             startGame = true;

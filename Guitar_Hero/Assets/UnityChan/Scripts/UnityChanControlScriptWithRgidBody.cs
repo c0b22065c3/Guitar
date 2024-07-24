@@ -90,17 +90,19 @@ namespace UnityChan
 				velocity *= backwardSpeed;	// 移動速度を掛ける
 			}
 		
-			if (Input.GetButtonDown ("Jump")) {	// スペースキーを入力したら
+			if (Input.GetKeyDown(KeyCode.Space)) { // スペースキーを入力したら
 
 				//アニメーションのステートがLocomotionの最中のみジャンプできる
-				if (currentBaseState.fullPathHash == locoState) {
+				if (currentBaseState.fullPathHash == locoState)
+				{
 					//ステート遷移中でなかったらジャンプできる
-					if (!anim.IsInTransition (0)) {
-						rb.AddForce (Vector3.up * jumpPower, ForceMode.VelocityChange);
-						anim.SetBool ("Jump", true);		// Animatorにジャンプに切り替えるフラグを送る
+					if (!anim.IsInTransition(0))
+					{
+						rb.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
+						anim.SetBool("Jump", true);     // Animatorにジャンプに切り替えるフラグを送る
 					}
 				}
-			}
+            }
 		
 
 			// 上下のキー入力でキャラクターを移動させる
@@ -122,7 +124,7 @@ namespace UnityChan
 		// JUMP中の処理
 		// 現在のベースレイヤーがjumpStateの時
 		else if (currentBaseState.fullPathHash == jumpState) {
-				cameraObject.SendMessage ("setCameraPositionJumpView");	// ジャンプ中のカメラに変更
+				//cameraObject.SendMessage ("setCameraPositionJumpView");	// ジャンプ中のカメラに変更
 				// ステートがトランジション中でない場合
 				if (!anim.IsInTransition (0)) {
 				
@@ -163,10 +165,17 @@ namespace UnityChan
 					resetCollider ();
 				}
 				// スペースキーを入力したらRest状態になる
-				if (Input.GetButtonDown ("Jump")) {
-					anim.SetBool ("Rest", true);
-				}
-			}
+				if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    rb.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
+                    anim.SetBool("Jump", true);     // Animatorにジャンプに切り替えるフラグを送る
+                }
+                if (Input.GetKeyDown(KeyCode.R))
+                {
+                    anim.SetBool("Rest", true);
+                }
+
+            }
 		// REST中の処理
 		// 現在のベースレイヤーがrestStateの時
 		else if (currentBaseState.fullPathHash == restState) {
@@ -180,13 +189,13 @@ namespace UnityChan
 
 		void OnGUI ()
 		{
-			GUI.Box (new Rect (Screen.width - 260, 10, 250, 150), "Interaction");
-			GUI.Label (new Rect (Screen.width - 245, 30, 250, 30), "Up/Down Arrow : Go Forwald/Go Back");
-			GUI.Label (new Rect (Screen.width - 245, 50, 250, 30), "Left/Right Arrow : Turn Left/Turn Right");
-			GUI.Label (new Rect (Screen.width - 245, 70, 250, 30), "Hit Space key while Running : Jump");
-			GUI.Label (new Rect (Screen.width - 245, 90, 250, 30), "Hit Spase key while Stopping : Rest");
-			GUI.Label (new Rect (Screen.width - 245, 110, 250, 30), "Left Control : Front Camera");
-			GUI.Label (new Rect (Screen.width - 245, 130, 250, 30), "Alt : LookAt Camera");
+			//GUI.Box (new Rect (Screen.width - 260, 10, 250, 150), "Interaction");
+			//GUI.Label (new Rect (Screen.width - 245, 30, 250, 30), "Up/Down Arrow : Go Forwald/Go Back");
+			//GUI.Label (new Rect (Screen.width - 245, 50, 250, 30), "Left/Right Arrow : Turn Left/Turn Right");
+			//GUI.Label (new Rect (Screen.width - 245, 70, 250, 30), "Hit Space key while Running : Jump");
+			//GUI.Label (new Rect (Screen.width - 245, 90, 250, 30), "Hit Spase key while Stopping : Rest");
+			//GUI.Label (new Rect (Screen.width - 245, 110, 250, 30), "Left Control : Front Camera");
+			//GUI.Label (new Rect (Screen.width - 245, 130, 250, 30), "Alt : LookAt Camera");
 		}
 
 

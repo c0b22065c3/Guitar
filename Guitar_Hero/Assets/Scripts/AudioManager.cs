@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 class AudioManager : MonoBehaviour
 {
+    public static AudioManager instance = null;
+
     InputCaptureFuncs inputCap;
 
     //入力デバイスの設定はここで入力 
@@ -40,6 +42,18 @@ class AudioManager : MonoBehaviour
 
     [SerializeField] float gain = 1.0f;
 
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+    }
 
     public struct Int24
     {
@@ -161,7 +175,7 @@ class AudioManager : MonoBehaviour
             data[2 * i] = DataSamples[i] * gain;
             data[2 * i + 1] = DataSamples[i] * gain;
 
-            Debug.Log(Mathf.Round(Mathf.Abs(DataSamples[i] * gain * 100)));
+            GameManager.instance.stroke = Mathf.Round(Mathf.Abs(DataSamples[i] * gain * 100));
         }
     }
 

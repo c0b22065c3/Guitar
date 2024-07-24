@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
 
     [Header("ストローク時のフィードバック")] public float stroke;
     [Header("ゲームスタート")] public bool startGame = false;
+    [Header("ゴール")] public bool goalGame = false;
     [Header("Unityちゃんを固定")] public bool freezeUnityChan = false;
 
     private string sceneName; // 現在のシーンの名前を格納する用
@@ -27,7 +28,7 @@ public class GameManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(this.gameObject);
+            //DontDestroyOnLoad(this.gameObject);
         }
         else
         {
@@ -67,6 +68,13 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        if (goalGame)
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                SceneManager.LoadScene("Battle");
+            }
+        }
     }
 
     void OnActiveSceneChanged(Scene prevScene, Scene nextScene)

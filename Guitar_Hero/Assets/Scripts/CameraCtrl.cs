@@ -32,7 +32,7 @@ public class CameraCtrl : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(this.gameObject);
+            //DontDestroyOnLoad(this.gameObject);
         }
         else
         {
@@ -83,9 +83,14 @@ public class CameraCtrl : MonoBehaviour
             case GameManager.GameMode.runner:
                 if (GameManager.instance.startGame)
                 {
-                    if (unityChan.transform.position.z < -500 && unityChan.transform.position.z > -555)
+                    if (unityChan.transform.position.z < -500 && unityChan.transform.position.z > -530)
                     {
                         cm = CameraMode.frt;
+                    }
+                    else if (unityChan.transform.position.z < -1000)
+                    {
+                        GameManager.instance.goalGame = true;
+                        GameManager.instance.freezeUnityChan = true;
                     }
                     else
                     {

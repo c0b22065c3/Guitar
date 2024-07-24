@@ -4,12 +4,39 @@ using UnityEngine;
 
 public class CameraCtrl : MonoBehaviour
 {
-    public GameObject camPos;
+    public static CameraCtrl instance = null;
+
+    public GameObject fps_camPos;
+    public GameObject gui_camPos;
+    public GameObject run_camPos;
+    public GameObject frt_camPos;
 
     private Vector3 defPos;
     private Quaternion defRot;
 
-    private bool FPS;
+    public CameraMode cm = CameraMode.def;
+
+    public enum CameraMode
+    {
+        def,
+        fps,
+        gui,
+        run,
+        frt
+    }
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -21,25 +48,77 @@ public class CameraCtrl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.C))
+        switch (GameManager.instance.gameMode)
         {
-            FPS = true;
+            case GameManager.GameMode.free:
+                if (Input.GetKeyDown(KeyCode.H) && GameManager.instance.startGame)
+                {
+                    cm = CameraMode.def;
+                }
+
+                if (Input.GetKeyDown(KeyCode.F) && GameManager.instance.startGame)
+                {
+                    cm = CameraMode.fps;
+                }
+
+                if (Input.GetKeyDown(KeyCode.G) && GameManager.instance.startGame)
+                {
+                    cm = CameraMode.gui;
+                }
+
+                if (Input.GetKeyDown(KeyCode.R) && GameManager.instance.startGame)
+                {
+                    cm = CameraMode.run;
+                }
+
+                if (Input.GetKeyDown(KeyCode.Q) && GameManager.instance.startGame)
+                {
+                    cm = CameraMode.frt;
+                }
+
+                break;
+
+            case GameManager.GameMode.runner:
+                if (GameManager.instance.startGame)
+                {
+                    if (Input.GetKey(KeyCode.Q))
+                    {
+                        cm = CameraMode.frt;
+                    }
+                    else
+                    {
+                        cm = CameraMode.run;
+                    }
+                }
+                break;
         }
 
-        if (Input.GetKeyDown(KeyCode.V))
+        switch (cm)
         {
-            FPS = false;
-        }
+            case CameraMode.def:
+                this.transform.position = defPos;
+                this.transform.rotation = defRot;
+                break;
 
-        if (FPS)
-        {
-            this.transform.position = camPos.transform.position;
-            this.transform.rotation = camPos.transform.rotation;
-        }
-        else
-        {
-            this.transform.position = defPos;
-            this.transform.rotation = defRot;
+            case CameraMode.fps:
+                this.transform.position = fps_camPos.transform.position;
+                this.transform.rotation = fps_camPos.transform.rotation;
+                break;
+
+            case CameraMode.gui:
+                this.transform.position = gui_camPos.transform.position;
+                this.transform.rotation = gui_camPos.transform.rotation;
+                break;
+
+            case CameraMode.run:
+                this.transform.position = run_camPos.transform.position;
+                this.transform.rotation = run_camPos.transform.rotation;
+                break;
+
+            case CameraMode.frt:
+                this.transform.position = frt_camPos.transform.position;
+                this.transform.rotation = frt_camPos.transform.rotation;
+                break;
         }
     }
 }

@@ -7,10 +7,19 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance = null;
 
+    [Header("ゲームモード")] public GameMode gameMode;
+    [Header("音量の閾値")] public float threshold;
+
     [Header("ストローク時のフィードバック")] public float stroke;
+    [Header("ゲームスタート")] public bool startGame = false;
 
     private string sceneName; // 現在のシーンの名前を格納する用
-    private bool startGame = false;
+
+    public enum GameMode
+    {
+        free,
+        runner
+    }
 
     private void Awake()
     {
@@ -33,21 +42,30 @@ public class GameManager : MonoBehaviour
 
         //シーンが切り替わった時に呼ばれるメソッドを登録
         SceneManager.activeSceneChanged += OnActiveSceneChanged;
-
-        if (sceneName != "Title")
-        {
-            startGame = true;
-        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (stroke > 5 && sceneName == "Title")
+        if (!startGame)
         {
-            SceneManager.LoadScene("Battle");
-            startGame = true;
+            if (stroke > threshold)
+            {
+                startGame = true;
+            }
         }
+        else
+        {
+            switch (gameMode)
+            {
+                case GameMode.free:
+                    break;
+
+                case GameMode.runner:
+                    break;
+            }
+        }
+
     }
 
     void OnActiveSceneChanged(Scene prevScene, Scene nextScene)

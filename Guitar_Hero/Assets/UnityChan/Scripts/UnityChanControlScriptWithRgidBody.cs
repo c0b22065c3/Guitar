@@ -69,14 +69,24 @@ namespace UnityChan
 		// 以下、メイン処理.リジッドボディと絡めるので、FixedUpdate内で処理を行う.
 		void FixedUpdate ()
 		{
-			float h = Input.GetAxis ("Horizontal");				// 入力デバイスの水平軸をhで定義
-			float v = Input.GetAxis ("Vertical");				// 入力デバイスの垂直軸をvで定義
+			float h = Input.GetAxis ("Horizontal");             // 入力デバイスの水平軸をhで定義
+			float v;											// 入力デバイスの垂直軸をvで定義
+
+			if (GameManager.instance.gameMode == GameManager.GameMode.runner)
+			{
+				v = Mathf.Round(GameManager.instance.stroke);
+			}
+			else
+			{
+                v = Input.GetAxis("Vertical");
+            }
+
 			anim.SetFloat ("Speed", v);							// Animator側で設定している"Speed"パラメタにvを渡す
 			anim.SetFloat ("Direction", h); 						// Animator側で設定している"Direction"パラメタにhを渡す
 			anim.speed = animSpeed;								// Animatorのモーション再生速度に animSpeedを設定する
 			currentBaseState = anim.GetCurrentAnimatorStateInfo (0);	// 参照用のステート変数にBase Layer (0)の現在のステートを設定する
 			rb.useGravity = true;//ジャンプ中に重力を切るので、それ以外は重力の影響を受けるようにする
-		
+
 		
 		
 			// 以下、キャラクターの移動処理
@@ -90,26 +100,31 @@ namespace UnityChan
 				velocity *= backwardSpeed;	// 移動速度を掛ける
 			}
 		
-			if (Input.GetKeyDown(KeyCode.Space)) { // スペースキーを入力したら
+			if (Input.GetKeyDown(KeyCode.Space) && GameManager.instance.startGame)
+			{
 
 				//アニメーションのステートがLocomotionの最中のみジャンプできる
-				if (currentBaseState.fullPathHash == locoState)
-				{
-					//ステート遷移中でなかったらジャンプできる
-					if (!anim.IsInTransition(0))
-					{
-						rb.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
-						anim.SetBool("Jump", true);     // Animatorにジャンプに切り替えるフラグを送る
-					}
-				}
-            }
+				//if (currentBaseState.fullPathHash == locoState)
+				//{
+				//	//ステート遷移中でなかったらジャンプできる
+				//	if (!anim.IsInTransition(0))
+				//	{
+				//		rb.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
+				//		anim.SetBool("Jump", true);     // Animatorにジャンプに切り替えるフラグを送る
+				//	}
+    //            }
+                rb.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
+                anim.SetBool("Jump", true);     // Animatorにジャンプに切り替えるフラグを送る
+                }
 		
+			if (GameManager.instance.startGame)
+            {
+                // 上下のキー入力でキャラクターを移動させる
+                transform.localPosition += velocity * Time.fixedDeltaTime;
 
-			// 上下のキー入力でキャラクターを移動させる
-			transform.localPosition += velocity * Time.fixedDeltaTime;
-
-			// 左右のキー入力でキャラクタをY軸で旋回させる
-			transform.Rotate (0, h * rotateSpeed, 0);	
+				// 左右のキー入力でキャラクタをY軸で旋回させる
+				transform.Rotate(0, h * rotateSpeed, 0);
+            }
 	
 
 			// 以下、Animatorの各ステート中での処理
@@ -126,7 +141,7 @@ namespace UnityChan
 		else if (currentBaseState.fullPathHash == jumpState) {
 				//cameraObject.SendMessage ("setCameraPositionJumpView");	// ジャンプ中のカメラに変更
 				// ステートがトランジション中でない場合
-				if (!anim.IsInTransition (0)) {
+				//if (!anim.IsInTransition (0)) {
 				
 					// 以下、カーブ調整をする場合の処理
 					if (useCurves) {
@@ -155,7 +170,7 @@ namespace UnityChan
 					}
 					// Jump bool値をリセットする（ループしないようにする）				
 					anim.SetBool ("Jump", false);
-				}
+				//}
 			}
 		// IDLE中の処理
 		// 現在のベースレイヤーがidleStateの時
@@ -164,13 +179,13 @@ namespace UnityChan
 				if (useCurves) {
 					resetCollider ();
 				}
-				// スペースキーを入力したらRest状態になる
-				if (Input.GetKeyDown(KeyCode.Space))
-                {
-                    rb.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
-                    anim.SetBool("Jump", true);     // Animatorにジャンプに切り替えるフラグを送る
-                }
-                if (Input.GetKeyDown(KeyCode.R))
+				//// スペースキーを入力したらRest状態になる
+				//if (Input.GetKeyDown(KeyCode.Space) && GameManager.instance.startGame)
+    //            {
+    //                rb.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
+    //                anim.SetBool("Jump", true);     // Animatorにジャンプに切り替えるフラグを送る
+    //            }
+                if (Input.GetKeyDown(KeyCode.Z) && GameManager.instance.startGame)
                 {
                     anim.SetBool("Rest", true);
                 }
